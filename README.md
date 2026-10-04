@@ -2,7 +2,11 @@
 
 An end-to-end machine learning project that predicts, after the **first 4 weeks** of a course, which students are at risk of **withdrawing or failing**. It includes data cleaning, leakage-safe feature engineering, model comparison, threshold selection, a fairness check, and a Streamlit app.
 
-**Live demo:** oulad-early-warning.streamlit.app
+**\*\*Live demo:\*\* https://oulad-early-warning.streamlit.app/**
+
+
+
+**The app has a single-student form and a class CSV upload (public demo: use synthetic data only).**
 
 ## Key results
 
