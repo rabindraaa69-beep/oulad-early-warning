@@ -7,6 +7,7 @@ import pandas as pd
 import streamlit as st
 
 MODELS = Path(__file__).resolve().parent.parent / "models"
+DEFAULT_HIGH_CUT = 0.60
 
 st.set_page_config(page_title="Student Early-Warning Tool", layout="wide")
 
@@ -27,11 +28,15 @@ st.write("Estimates the risk that a student will withdraw or fail a course, "
          "using only what is known after the first 4 weeks.")
 
 with st.sidebar:
-    st.header("Alert threshold")
-    threshold = st.slider("Flag students at or above this risk",
-                          0.10, 0.90, float(meta["threshold"]), 0.05)
-    st.caption("Lower catches more at-risk students but raises more false alarms. "
-               "The default was chosen by cross-validation on training data.")
+    st.header("Risk bands")
+    threshold = st.slider("Medium band starts at", 0.10, 0.80,
+                          float(meta["threshold"]), 0.05)
+    high_cut = st.slider("High band starts at", 0.30, 0.95, DEFAULT_HIGH_CUT, 0.05)
+    if high_cut <= threshold:
+        high_cut = threshold + 0.05
+        st.caption("High cutoff raised to stay above the Medium cutoff.")
+    st.caption("Lower cutoffs catch more at-risk students but raise more false alarms. "
+               "The defaults were chosen on training data.")
 
 col1, col2, col3 = st.columns(3)
 
@@ -86,21 +91,32 @@ row = {
 X = pd.DataFrame([row])[meta["cat_features"] + meta["num_features"]]
 risk = float(model.predict_proba(X)[0, 1])
 
+if risk >= high_cut:
+    band = "High"
+elif risk >= threshold:
+    band = "Medium"
+else:
+    band = "Low"
+
 st.divider()
 r1, r2 = st.columns([1, 3])
 r1.metric("Estimated risk", f"{risk:.0%}")
 with r2:
     st.progress(min(max(risk, 0.0), 1.0))
-    if risk >= threshold:
-        st.error(f"Flagged: risk is at or above the {threshold:.0%} alert threshold. "
-                 "Consider reaching out with support.")
+    if band == "High":
+        st.error("**High risk.** Prioritise a supportive check-in.")
+    elif band == "Medium":
+        st.warning("**Medium risk.** Keep this student on a watch list "
+                   "and check again next week.")
     else:
-        st.success(f"Not flagged: risk is below the {threshold:.0%} alert threshold.")
+        st.success("**Low risk.** No action needed now, but this does not guarantee "
+                   "the student will do well.")
 
 with st.expander("About this tool and its limits"):
     st.markdown(f"""
 - Trained on the Open University Learning Analytics Dataset (UK distance learning, CC BY 4.0), predicting at day 28 of a course. Students who had already withdrawn by day 28 are excluded.
-- On held-out students the model's ROC-AUC was **{meta['test_roc_auc']:.2f}**. At the {meta['threshold']:.2f} threshold it caught about **{meta['test_recall']:.0%}** of at-risk students, and about **{meta['test_precision']:.0%}** of flagged students were truly at risk.
+- On held-out students the model's ROC-AUC was **{meta['test_roc_auc']:.2f}**. At the {meta['threshold']:.2f} cutoff it caught about **{meta['test_recall']:.0%}** of at-risk students, and about **{meta['test_precision']:.0%}** of flagged students were truly at risk.
+- **Bands on held-out students:** about 78% of the High band, 46% of the Medium band and 21% of the Low band ended up withdrawing or failing (the overall rate was 43%). The High band held 25% of students but 46% of all at-risk students. The Medium band is only a little above the overall rate, so treat it as a watch group.
 - The score is a ranking aid, not a calibrated probability.
 - A flag should lead to a supportive conversation, never a penalty. A person should review every flag.
 - Gender, disability, age band and deprivation band are **not** used by the model. This narrowed the gap in flag rates for disabled students, but gaps by gender and by prior education remained, because other features act as proxies. Region and prior education are still used and were not audited in depth.
