@@ -104,6 +104,24 @@ I then removed the four profile fields and retrained, which cost only 0.004 ROC-
 * Groups with higher base rates of risk get both higher recall and more false alarms. A single threshold treats groups differently.
 * This is one test split without confidence intervals, groups overlap, and these are patterns in predictions, not proof of cause. The model is **not** claimed to be fair.
 
+
+
+\### Gender gap
+
+
+
+At the 0.35 threshold on the held-out students, at-risk men are caught more often than at-risk women: recall 0.811 vs 0.746, a gap of 6.5 points (95% CI 3.2 to 9.9, bootstrap over students, 1,000 resamples; 1,312 at-risk men, 1,053 at-risk women). The false-alarm gap (0.374 vs 0.400) is not distinguishable from zero. The interval reflects test-sample noise only, for one model and one split.
+
+
+
+\- \*\*Module mix explains part of it.\*\* Women are concentrated in modules where recall is lower for everyone (BBB, GGG). Reweighting to women's module mix shrinks the gap to about 3 points, while men's mix gives about 8, and some module cells are small.
+
+\- \*\*It does not fully go away within modules.\*\* In CCC, DDD and FFF, men's recall is 7 to 10 points higher.
+
+\- \*\*Activity does not explain it.\*\* At-risk women have fewer clicks and active days than at-risk men, yet receive lower risk scores. The cause is unknown. One idea to test is activity measured relative to the module average.
+
+\- \*\*Closing it with a lower cutoff for women would cost about 2 extra false alarms per extra at-risk woman caught\*\* (cutoff 0.30: recall 0.746 to 0.822, false-alarm rate 0.400 to 0.520). I did not deploy gender-specific thresholds, because they treat students differently based on a protected trait.
+
 ## Limitations
 
 * Trained on one UK distance-learning institution. It may not transfer to other courses or institutions.
