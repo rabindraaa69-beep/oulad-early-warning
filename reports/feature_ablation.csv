@@ -1,0 +1,5 @@
+features,roc_auc,pr_auc,recall_top50%
+demographics only,0.662,0.587,0.64
+demographics + clicks,0.747,0.703,0.702
+demographics + assessments,0.756,0.722,0.71
+all features,0.786,0.755,0.734

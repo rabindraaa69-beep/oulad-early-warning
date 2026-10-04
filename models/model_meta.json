@@ -1,0 +1,37 @@
+{
+  "cutoff_day": 28,
+  "threshold": 0.35,
+  "cat_features": [
+    "code_module",
+    "region",
+    "highest_education"
+  ],
+  "num_features": [
+    "num_of_prev_attempts",
+    "studied_credits",
+    "date_registration",
+    "total_clicks",
+    "active_days",
+    "n_sites",
+    "clicks_pre",
+    "clicks_early",
+    "clicks_late",
+    "click_trend",
+    "days_since_last_active",
+    "no_clicks_flag",
+    "n_submitted",
+    "mean_score",
+    "n_assessments_due"
+  ],
+  "removed_fields": [
+    "gender",
+    "disability",
+    "age_band",
+    "imd_band"
+  ],
+  "sklearn_version": "1.7.2",
+  "test_roc_auc": 0.7820325413028704,
+  "test_pr_auc": 0.7521179024223273,
+  "test_precision": 0.6081525312294543,
+  "test_recall": 0.7822410147991543
+}
